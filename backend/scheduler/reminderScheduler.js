@@ -64,7 +64,7 @@ const checkAndSendReminders = async () => {
 // Schedule the task to run once every day at 9:00 AM server time
 // Cron format: 'minute hour day-of-month month day-of-week'
 export const startReminderScheduler = () => {
-    cron.schedule('49 20 * * *', checkAndSendReminders, {
+    cron.schedule('0 9 * * *', checkAndSendReminders, {
         scheduled: true,
         timezone: "Asia/Kolkata" // Set to your target user's timezone or a common one
     });
