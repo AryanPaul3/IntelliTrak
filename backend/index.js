@@ -23,14 +23,14 @@ app.use(cors({
 }));
 
 app.use(cookieParser()); // allows us to parse cookies from the request
-
+app.use(express.json());    // allows us to parse incomming requests : req.body
 // app.get('/', (req, res) => {    
     //     res.send('Hello World!');
     // });
     
     app.use("/api/jobs", jobRoutes); 
     
-    app.use(express.json());    // allows us to parse incomming requests : req.body
+    
 
 app.use("/api/users" , userRoutes)
 
