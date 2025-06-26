@@ -28,10 +28,10 @@ const JobForm = ({ onSubmit, initialData = {}, isSubmitting, onCancel }) => {
         if (name === 'status') {
             const today = formatDateForInput(new Date());
             const updatedForm = { ...formData, [name]: value };
-            if (value === 'Applied' && !updatedForm.dateApplied) updatedForm.dateApplied = today;
-            if (value === 'Interviewing' && !updatedForm.dateInterviewing) updatedForm.dateInterviewing = today;
-            if (value === 'Offer' && !updatedForm.dateOffer) updatedForm.dateOffer = today;
-            if (value === 'Rejected' && !updatedForm.dateRejected) updatedForm.dateRejected = today;
+            // if (value === 'Applied' && !updatedForm.dateApplied) updatedForm.dateApplied = today;
+            // if (value === 'Interviewing' && !updatedForm.dateInterviewing) updatedForm.dateInterviewing = today;
+            // if (value === 'Offer' && !updatedForm.dateOffer) updatedForm.dateOffer = today;
+            // if (value === 'Rejected' && !updatedForm.dateRejected) updatedForm.dateRejected = today;
             setFormData(updatedForm);
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
