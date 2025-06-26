@@ -49,3 +49,38 @@ export const getProfile = async (req, res) => {
         res.status(500).json({ message: "Server error fetching profile", error: error.message });
     }
 };
+
+// @desc    Authenticate/Register user with Google
+// @route   POST /api/users/auth/google
+export const googleAuth = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const firebaseUid = req.user.uid; // From verifyFirebaseToken middleware
+
+        // "Upsert" logic: Find a user with this Firebase UID.
+        let userProfile = await User.findOne({ firebaseUid: firebaseUid });
+
+        // If the user does NOT exist, create them.
+        if (!userProfile) {
+            console.log(`Creating new profile for Google user: ${email}`);
+            userProfile = new User({
+                firebaseUid: firebaseUid,
+                name: name,
+                email: email,
+                // You can add photoURL here if you decide to store it
+            });
+            await userProfile.save();
+        }
+
+        // If the user already existed, we've successfully found them.
+        // Either way, we now have a userProfile to send back.
+        res.status(200).json({
+            message: "User authenticated successfully",
+            profile: userProfile,
+        });
+
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        res.status(500).json({ message: "Server error during Google authentication", error: error.message });
+    }
+};

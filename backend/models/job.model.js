@@ -26,19 +26,25 @@ const jobApplicationSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    dateApplied: {
-        type: Date,
-    },
-    applyByDate: {
-        type: Date,
-    },
+    dateApplied: { type: Date },
+    applyByDate: { type: Date },
+    dateInterviewing: { type: Date }, 
+    dateOffer: { type: Date }, 
+    dateRejected: { type: Date },
     notes: {
         type: String,
         trim: true,
     },
-    // We will add fields for Cloudinary later
-    resumeUrl: String,
-    resumePublicId: String,
+    resumeUrl: {
+        type: String,
+    },
+    resumePublicId: {
+        type: String,
+    },
+    remindersEnabled: {
+        type: Boolean,
+        default: true // Default to true for a better "out-of-the-box" experience per job
+    }
 }, { timestamps: true });
 
 export const JobApplication = mongoose.model('JobApplication', jobApplicationSchema);

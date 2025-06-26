@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
+import { startReminderScheduler } from './scheduler/reminderScheduler.js';
 
 // const { connectDb } = require('./db/connectDb.js');
 import { connectDb } from './db/connectDb.js';
@@ -21,15 +22,17 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());    // allows us to parse incomming requests : req.body
 app.use(cookieParser()); // allows us to parse cookies from the request
 
 // app.get('/', (req, res) => {    
-//     res.send('Hello World!');
-// });
+    //     res.send('Hello World!');
+    // });
+    
+    app.use("/api/jobs", jobRoutes); 
+    
+    app.use(express.json());    // allows us to parse incomming requests : req.body
 
 app.use("/api/users" , userRoutes)
-app.use("/api/jobs", jobRoutes); 
 
 if(process.env.NODE_ENV === 'production') {
     // Serve static files from the React frontend app
@@ -43,5 +46,6 @@ if(process.env.NODE_ENV === 'production') {
 
 app.listen(PORT, () => {
     connectDb();
+    startReminderScheduler();
     console.log('Server started on port ', PORT);
 });

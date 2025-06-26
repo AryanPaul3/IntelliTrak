@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link  , useNavigate} from 'react-router'
 import { useAuthStore } from '../store/authStore'
-
+import GoogleSignInButton from '../components/GoogleSignInButton'
 
 import {User, Mail, Lock ,Loader} from 'lucide-react'
 import Input from '../components/Input'
@@ -75,6 +75,12 @@ function SignUpPage() {
 						{isLoading ? <Loader className=' animate-spin mx-auto' size={24} /> : "Sign Up"}
 					</motion.button>
 				</form>
+				<div className='my-4 flex items-center'>
+                    <div className='flex-grow border-t border-zinc-600'></div>
+                    <span className='flex-shrink mx-4 text-zinc-400 text-sm'>OR</span>
+                    <div className='flex-grow border-t border-zinc-600'></div>
+                </div>
+                <GoogleSignInButton />
 			</div>
 			<div className='px-8 py-4 bg-zinc-900 flex justify-center'>
 				<p className='text-sm text-zinc-400'>

@@ -7,10 +7,10 @@ const AddJobModal = ({ onClose }) => {
     const { addJob } = useJobStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleAddJob = async (formData) => {
+    const handleAddJob = async (formData , resumeFile) => {
         setIsSubmitting(true);
         try {
-            await addJob(formData);
+            await addJob(formData , resumeFile);
             onClose(); // Close modal on success
         } catch (err) {
             // Error is already handled by toast in the store

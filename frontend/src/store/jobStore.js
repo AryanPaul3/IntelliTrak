@@ -34,11 +34,24 @@ export const useJobStore = create((set, get) => ({
         }
     },
 
-    addJob: async (jobData) => {
+    addJob: async (jobData , resumeFile) => {
         set({ isLoading: true, error: null });
         try {
             const headers = await get().getAuthHeader();
-            const response = await axios.post(`${API_URL}/jobs`, jobData, { headers });
+            const formData = new FormData();
+
+            // Append all job data fields to formData
+            for (const key in jobData) {
+                formData.append(key, jobData[key]);
+            }
+
+            // Append the file if it exists
+            if (resumeFile) {
+                formData.append('resume', resumeFile);
+            }
+
+            // Axios will automatically set the correct 'Content-Type' header for FormData
+            const response = await axios.post(`${API_URL}/jobs`, formData, { headers });
             set((state) => ({
                 jobs: [response.data, ...state.jobs],
                 isLoading: false,
@@ -53,22 +66,34 @@ export const useJobStore = create((set, get) => ({
         }
     },
 
-    updateJob: async (jobId, updatedData) => {
+    updateJob: async (jobId, updatedData , resumeFile , options = {}) => {
         set({ isLoading: true, error: null });
         try {
             const headers = await get().getAuthHeader();
-            const response = await axios.put(`${API_URL}/jobs/${jobId}`, updatedData, { headers });
+            const formData = new FormData();
+            
+            for (const key in updatedData) {
+                formData.append(key, updatedData[key]);
+            }
+            if (resumeFile) {
+                formData.append('resume', resumeFile);
+            }
+            const response = await axios.put(`${API_URL}/jobs/${jobId}`, formData , { headers });
             set((state) => ({
                 jobs: state.jobs.map((job) =>
                     job._id === jobId ? response.data : job
                 ),
                 isLoading: false,
             }));
-            toast.success('Job updated successfully!');
+            if (!options.silent) {
+                toast.success('Job updated successfully!');
+            }
+            return response.data; 
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Failed to update job';
             set({ error: errorMessage, isLoading: false });
             toast.error(errorMessage);
+            throw error;
         }
     },
 
@@ -86,6 +111,28 @@ export const useJobStore = create((set, get) => ({
             const errorMessage = error.response?.data?.message || 'Failed to delete job';
             set({ error: errorMessage, isLoading: false });
             toast.error(errorMessage);
+        }
+    },
+
+    deleteResume: async (jobId) => {
+        // We set a specific loading state if needed, or just rely on component state
+        try {
+            const headers = await get().getAuthHeader();
+            const response = await axios.delete(`${API_URL}/jobs/${jobId}/resume`, { headers });
+
+            // Update the specific job in our state with the returned data
+            set((state) => ({
+                jobs: state.jobs.map((job) =>
+                    job._id === jobId ? response.data : job
+                ),
+            }));
+            toast.success('Resume deleted successfully!');
+            // Return the updated job so the modal can refresh its state
+            return response.data;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Failed to delete resume';
+            toast.error(errorMessage);
+            throw error;
         }
     },
 

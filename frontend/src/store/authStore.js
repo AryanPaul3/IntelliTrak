@@ -8,7 +8,9 @@ import {
     onAuthStateChanged, // The most important import!
     sendPasswordResetEmail,
     sendEmailVerification,
-    updateProfile // To set the user's name
+    updateProfile, // To set the user's name
+    GoogleAuthProvider,
+    signInWithPopup 
 } from "firebase/auth";
 import toast from 'react-hot-toast';
 
@@ -81,6 +83,47 @@ export const useAuthStore = create((set , get) => ({
                 set({ user: null, profile: null, isAuthenticated: false, isCheckingAuth: false });
             }
         });
+    },
+
+    signInWithGoogle: async () => {
+        set({ error: null });
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const firebaseUser = result.user;
+
+            // This is the crucial part. After a successful Google sign-in,
+            // we must check if a profile for this user already exists in our own database.
+            // If not, we create one. The backend endpoint will handle this logic.
+            
+            const token = await firebaseUser.getIdToken();
+            
+            // We'll create a new backend endpoint for this "find or create" logic.
+            const response = await axios.post(`${API_URL}/users/auth/google`, 
+                { 
+                    name: firebaseUser.displayName, 
+                    email: firebaseUser.email,
+                    // You could also send firebaseUser.photoURL if you want to store it
+                },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+
+            // The onAuthStateChanged listener will automatically update the `user` object.
+            // We just need to set our custom `profile` from our DB.
+            set({ profile: response.data.profile });
+            
+            toast.success("Successfully signed in with Google!");
+
+        } catch (error) {
+            // Handle common errors like "popup-closed-by-user" gracefully
+            if (error.code !== 'auth/popup-closed-by-user') {
+                set({ error: error.message || 'Google Sign-In failed', isLoading: false });
+                toast.error(error.message || 'Google Sign-In failed');
+            } else {
+                set({ isLoading: false }); // Just stop loading, don't show an error
+            }
+            throw error;
+        }
     },
 
     signup: async (email , password , name) => {

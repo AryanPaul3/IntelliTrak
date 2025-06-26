@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Mail, Lock , Loader } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router'
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 
 function LoginPage() {
@@ -69,6 +70,13 @@ function LoginPage() {
                     {isLoading ? <Loader className='w-6 h-6 animate-spin  mx-auto' /> : "Login"}
                 </motion.button>
             </form>
+
+            <div className='my-4 flex items-center'>
+                <div className='flex-grow border-t border-zinc-600'></div>
+                <span className='flex-shrink mx-4 text-zinc-400 text-sm'>OR</span>
+                <div className='flex-grow border-t border-zinc-600'></div>
+            </div>
+            <GoogleSignInButton />
         </div>
         <div className='px-8 py-4 bg-zinc-900 flex justify-center'>
             <p className='text-sm text-zinc-400'>

@@ -1,70 +1,50 @@
-import { VERIFICATION_EMAIL_TEMPLATE , PASSWORD_RESET_REQUEST_TEMPLATE , PASSWORD_RESET_SUCCESS_TEMPLATE , WELCOME_TEMPLATE} from './emailTemplates.js';
+import {APPLICATION_REMINDER_TEMPLATE, INTERVIEW_REMINDER_TEMPLATE } from './emailTemplates.js';
 import {transporter} from './mail.config.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const formatDaysLeftText = (daysLeft) => {
+    if (daysLeft === 0) return "today";
+    if (daysLeft === 1) return "tomorrow";
+    return `in ${daysLeft} days`;
+};
 
-export const sendVerificationEmail = async (email, verificationToken , name) => {
-
+export const sendApplicationReminderEmail = async (email, name, job, daysLeft) => {
     try {
-        const response = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL, 
+        const whenText = formatDaysLeftText(daysLeft);
+        const html = APPLICATION_REMINDER_TEMPLATE
+            .replace("{name}", name)
+            .replace("{jobTitle}", job.jobTitle)
+            .replace("{company}", job.company)
+            .replace("{when}", whenText);
+        
+        await transporter.sendMail({
+            from: process.env.NODEMAILER_EMAIL,
             to: email,
-            subject: "Verify your email",
-            html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken).replace("{name}" , name),
-            category: "Email Verification",
+            subject: `Reminder: Application for ${job.jobTitle} due ${whenText}!`,
+            html: html,
         });
-
-        console.log("Email sent successfully:", response);
     } catch (error) {
-        console.error("Error sending email:", error);
+        console.error("Error sending application reminder:", error);
     }
-}
+};
 
-export const sendWelcomeEmail = async (email, name) => {
+export const sendInterviewReminderEmail = async (email, name, job, daysLeft) => {
     try {
-        const response = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL, 
+        const whenText = formatDaysLeftText(daysLeft);
+        const html = INTERVIEW_REMINDER_TEMPLATE
+            .replace("{name}", name)
+            .replace("{jobTitle}", job.jobTitle)
+            .replace("{company}", job.company)
+            .replace("{when}", whenText);
+
+        await transporter.sendMail({
+            from: process.env.NODEMAILER_EMAIL,
             to: email,
-            subject: "Welcome to SyncSphere",
-            html: WELCOME_TEMPLATE.replace("{name}" , name).replace("{appURL}" , process.env.CLIENT_URL),
-            category: "Welcome Email",
+            subject: `Reminder: Interview for ${job.jobTitle} is ${whenText}`,
+            html: html,
         });
-
-        console.log("Welcome email sent successfully:", response);
     } catch (error) {
-        console.error("Error sending welcome email:", error);
+        console.error("Error sending interview reminder:", error);
     }
-}
-
-export const sendResetPasswordEmail = async (email, resetURL , name) => {
-    try {
-        const response = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL, 
-            to: email,
-            subject: "Reset your password",
-            html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL).replace("{name}" , name),
-            category: "Password Reset",
-        });
-
-        console.log("Reset password email sent successfully:", response);
-    } catch (error) {
-        console.error("Error sending reset password email:", error);
-    }
-}
-
-export const sendResetSuccessEmail = async (email , name) => {
-    try {
-        const response = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL, 
-            to: email,
-            subject: "Password Reset Successful",
-            html: PASSWORD_RESET_SUCCESS_TEMPLATE.replace("{name}" , name),
-            category: "Password Reset Success",
-        });
-
-        console.log("Password reset success email sent successfully:", response);
-    } catch (error) {
-        console.error("Error sending password reset success email:", error);
-    }
-}
+};
